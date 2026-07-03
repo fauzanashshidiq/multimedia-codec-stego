@@ -3,9 +3,9 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import Sidebar from './components/Sidebar'
 import Dashboard from './pages/Dashboard'
 import ImageStudio from './pages/ImageStudio'
+import AudioStudio from './pages/AudioStudio'
 
 // Placeholder pages for empty routes
-const AudioStudio = () => <div className="animate-fade-in"><h2>Audio Studio</h2><p>Module coming soon...</p></div>
 const VideoStudio = () => <div className="animate-fade-in"><h2>Video Studio</h2><p>Module coming soon...</p></div>
 const Team = () => <div className="animate-fade-in"><h2>Tentang Kelompok</h2><p>Module coming soon...</p></div>
 
