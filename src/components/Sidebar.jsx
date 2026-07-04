@@ -50,14 +50,6 @@ const Sidebar = () => {
           <Video className="icon" size={20} />
           <span>Video Studio</span>
         </NavLink>
-
-        <NavLink
-          to="/team"
-          className={({ isActive }) => `nav-item ${isActive ? "active" : ""}`}
-        >
-          <Users className="icon" size={20} />
-          <span>Tentang Kelompok</span>
-        </NavLink>
       </div>
 
       <div className="sidebar-footer">

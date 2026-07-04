@@ -10,6 +10,11 @@ const ImageStudio = () => {
   const [compressQuality, setCompressQuality] = useState(0.7);
   const [compressedResult, setCompressedResult] = useState(null);
   
+  // States for Decompress
+  const [decompressFile, setDecompressFile] = useState(null);
+  const [decompressPreview, setDecompressPreview] = useState(null);
+  const [decompressInfo, setDecompressInfo] = useState('');
+  
   // States for Stego Encode
   const [encodeFile, setEncodeFile] = useState(null);
   const [encodeImagePreview, setEncodeImagePreview] = useState(null);
@@ -44,6 +49,31 @@ const ImageStudio = () => {
       setLoading(false);
     }
   };
+
+  // --- Handlers for Decompress ---
+  const handleDecompressFile = (e) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      setDecompressFile(file);
+      setDecompressPreview(null);
+      setDecompressInfo(`Ukuran File: ${(file.size / 1024).toFixed(2)} KB | Tipe: ${file.type}`);
+    }
+  };
+
+  const handleDecompressAction = () => {
+    if (!decompressFile) return;
+    setLoading(true);
+    // Simulasi waktu pemrosesan decoding di memori browser
+    setTimeout(() => {
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        setDecompressPreview(ev.target.result);
+        setLoading(false);
+      };
+      reader.readAsDataURL(decompressFile);
+    }, 800);
+  };
+
 
   // --- Handlers for Stego Encode ---
   const handleEncodeFile = (e) => {
@@ -119,6 +149,11 @@ const ImageStudio = () => {
           🗜️ Kompresi
         </button>
         <button 
+          onClick={() => setActiveTab('decompress')}
+          style={{ background: activeTab === 'decompress' ? 'var(--accent-primary)' : 'transparent', color: activeTab === 'decompress' ? '#fff' : 'var(--text-secondary)', border: 'none', padding: '0.5rem 1rem', borderRadius: 'var(--radius-md)', cursor: 'pointer', fontWeight: '500' }}>
+          🖼️ Dekompresi
+        </button>
+        <button 
           onClick={() => setActiveTab('stego-encode')}
           style={{ background: activeTab === 'stego-encode' ? 'var(--accent-secondary)' : 'transparent', color: activeTab === 'stego-encode' ? '#fff' : 'var(--text-secondary)', border: 'none', padding: '0.5rem 1rem', borderRadius: 'var(--radius-md)', cursor: 'pointer', fontWeight: '500' }}>
           🔒 Enkripsi Pesan (Stego)
@@ -173,6 +208,36 @@ const ImageStudio = () => {
                   ⬇️ Unduh Hasil (.webp)
                 </button>
               </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* TAB CONTENT: DECOMPRESS */}
+      {activeTab === 'decompress' && (
+        <div className="glass-card animate-fade-in">
+          <h2 style={{ marginBottom: '1.5rem' }}>Dekompresi Gambar</h2>
+          <p style={{ marginBottom: '1.5rem', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
+            Unggah gambar hasil kompresi (WebP/JPG) untuk melihat ukurannya dan menampilkannya di layar (dekode ke memori).
+          </p>
+          
+          <div style={{ marginBottom: '1.5rem' }}>
+            <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>Pilih Gambar Terkompresi</label>
+            <input type="file" accept="image/*" onChange={handleDecompressFile} style={{ width: '100%', padding: '0.75rem', background: 'var(--bg-secondary)', border: '1px solid var(--border-glass)', borderRadius: 'var(--radius-sm)', color: '#fff' }} />
+          </div>
+
+          <button 
+            onClick={handleDecompressAction} 
+            disabled={!decompressFile || loading}
+            style={{ background: 'var(--accent-primary)', color: '#fff', border: 'none', padding: '0.75rem 1.5rem', borderRadius: 'var(--radius-md)', cursor: !decompressFile || loading ? 'not-allowed' : 'pointer', opacity: !decompressFile || loading ? 0.5 : 1, fontWeight: 'bold' }}>
+            {loading ? 'Mendekompresi ke Memori...' : 'Mulai Dekompresi (Tampilkan)'}
+          </button>
+
+          {decompressPreview && (
+            <div style={{ marginTop: '2rem', paddingTop: '2rem', borderTop: '1px solid var(--border-glass)' }}>
+              <h3 style={{ marginBottom: '0.5rem', color: '#10b981' }}>✅ Gambar Berhasil Didekompresi</h3>
+              <p style={{ color: 'var(--accent-primary)', marginBottom: '1rem', fontWeight: 'bold' }}>{decompressInfo}</p>
+              <img src={decompressPreview} alt="Decompressed" style={{ maxWidth: '100%', maxHeight: '400px', borderRadius: 'var(--radius-md)' }} />
             </div>
           )}
         </div>

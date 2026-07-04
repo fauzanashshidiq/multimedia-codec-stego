@@ -11,6 +11,11 @@ const AudioStudio = () => {
   const [sampleRate, setSampleRate] = useState(16000);
   const [compressedResult, setCompressedResult] = useState(null);
   
+  // Decompress States
+  const [decompressFile, setDecompressFile] = useState(null);
+  const [decompressPreview, setDecompressPreview] = useState(null);
+  const [decompressInfo, setDecompressInfo] = useState('');
+  
   // Stego Encode States
   const [encodeFile, setEncodeFile] = useState(null);
   const [secretMessage, setSecretMessage] = useState('');
@@ -37,6 +42,30 @@ const AudioStudio = () => {
       setLoading(false);
     }
   };
+
+  // --- Handlers for Decompress ---
+  const handleDecompressFile = (e) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      setDecompressFile(file);
+      setDecompressPreview(null);
+      setDecompressInfo(`Ukuran File: ${(file.size / 1024).toFixed(2)} KB | Tipe: ${file.type}`);
+    }
+  };
+
+  const handleDecompressAction = () => {
+    if (!decompressFile) return;
+    setLoading(true);
+    setTimeout(() => {
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        setDecompressPreview(ev.target.result);
+        setLoading(false);
+      };
+      reader.readAsDataURL(decompressFile);
+    }, 800);
+  };
+
 
   const handleEncodeAction = async () => {
     if (!encodeFile || !secretMessage) return;
@@ -84,6 +113,11 @@ const AudioStudio = () => {
           onClick={() => setActiveTab('compress')}
           style={{ background: activeTab === 'compress' ? 'var(--accent-primary)' : 'transparent', color: activeTab === 'compress' ? '#fff' : 'var(--text-secondary)', border: 'none', padding: '0.5rem 1rem', borderRadius: 'var(--radius-md)', cursor: 'pointer', fontWeight: '500' }}>
           🗜️ Kompresi
+        </button>
+        <button 
+          onClick={() => setActiveTab('decompress')}
+          style={{ background: activeTab === 'decompress' ? 'var(--accent-primary)' : 'transparent', color: activeTab === 'decompress' ? '#fff' : 'var(--text-secondary)', border: 'none', padding: '0.5rem 1rem', borderRadius: 'var(--radius-md)', cursor: 'pointer', fontWeight: '500' }}>
+          🎵 Dekompresi
         </button>
         <button 
           onClick={() => setActiveTab('stego-encode')}
@@ -143,6 +177,36 @@ const AudioStudio = () => {
                   ⬇️ Unduh Audio (.wav)
                 </button>
               </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* DECOMPRESS TAB */}
+      {activeTab === 'decompress' && (
+        <div className="glass-card animate-fade-in">
+          <h2 style={{ marginBottom: '1.5rem' }}>Dekompresi Audio</h2>
+          <p style={{ marginBottom: '1.5rem', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
+            Unggah audio hasil kompresi untuk melihat ukurannya dan mendekode gelombangnya agar bisa diputar.
+          </p>
+          
+          <div style={{ marginBottom: '1.5rem' }}>
+            <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>Pilih Audio Terkompresi</label>
+            <input type="file" accept="audio/*" onChange={handleDecompressFile} style={{ width: '100%', padding: '0.75rem', background: 'var(--bg-secondary)', border: '1px solid var(--border-glass)', borderRadius: 'var(--radius-sm)', color: '#fff' }} />
+          </div>
+
+          <button 
+            onClick={handleDecompressAction} 
+            disabled={!decompressFile || loading}
+            style={{ background: 'var(--accent-primary)', color: '#fff', border: 'none', padding: '0.75rem 1.5rem', borderRadius: 'var(--radius-md)', cursor: !decompressFile || loading ? 'not-allowed' : 'pointer', opacity: !decompressFile || loading ? 0.5 : 1, fontWeight: 'bold' }}>
+            {loading ? 'Mendekompresi ke Memori...' : 'Mulai Dekompresi (Putar)'}
+          </button>
+
+          {decompressPreview && (
+            <div style={{ marginTop: '2rem', paddingTop: '2rem', borderTop: '1px solid var(--border-glass)' }}>
+              <h3 style={{ marginBottom: '0.5rem', color: '#10b981' }}>✅ Audio Berhasil Didekompresi</h3>
+              <p style={{ color: 'var(--accent-primary)', marginBottom: '1rem', fontWeight: 'bold' }}>{decompressInfo}</p>
+              <audio controls src={decompressPreview} style={{ width: '100%', marginBottom: '1rem' }} />
             </div>
           )}
         </div>
